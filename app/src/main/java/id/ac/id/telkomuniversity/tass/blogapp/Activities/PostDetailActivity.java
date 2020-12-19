@@ -3,17 +3,26 @@ package id.ac.id.telkomuniversity.tass.blogapp.Activities;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.NotificationCompat;
+import androidx.core.app.NotificationManagerCompat;
 import androidx.core.widget.NestedScrollView;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.graphics.text.LineBreaker;
 import android.media.MediaPlayer;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
 import android.view.Window;
@@ -42,6 +51,7 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
 //import id.ac.id.telkomuniversity.tass.blogapp.Models.LoadDialog;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -72,6 +82,8 @@ public class PostDetailActivity extends AppCompatActivity {
     RecyclerView rvComment;
     CommentAdapter commentAdapter;
     List<CommentPost> listComment;
+
+    int jumlahNotif=1;
 
 
     @Override
@@ -175,35 +187,24 @@ public class PostDetailActivity extends AppCompatActivity {
 
         String username = getIntent().getExtras().getString("username");
         txtPostDateName.setText("| by "+username);
-
         final String postImage = getIntent().getExtras().getString("postImage");
 
         if(postImage.contains("video")){
-
             vidPost.setVisibility(View.VISIBLE);
             play_btn.setVisibility(View.VISIBLE);
-
-
-
             play_btn.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-
-
                     play_btn.setVisibility(View.INVISIBLE);
-
                     Uri uri = Uri.parse(postImage);
                     vidPost.setVideoURI(uri);
                     vidPost.start();
                     ctlr = new MediaController(PostDetailActivity.this);
                     ctlr.hide();
-
                     vidPost.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
                         @Override
                         public void onPrepared(MediaPlayer mp) {
-
                             mp.setLooping(true);
-
                         }
                     });
 
@@ -213,23 +214,15 @@ public class PostDetailActivity extends AppCompatActivity {
 //                    vidPost.requestFocus();
 
                     stop_btn.setVisibility(View.VISIBLE);
-
                     int duration =vidPost.getDuration();
                     int currentPosition = vidPost.getCurrentPosition();
-
                     int hasil = duration + currentPosition;
-
                     if(hasil/2 == duration) {
                         stop_btn.setVisibility(View.INVISIBLE);
                     }
-
-
                     stop_btn.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
-
-
-
                             Uri uri = Uri.parse(postImage);
                             vidPost.setVideoURI(uri);
                             vidPost.stopPlayback();
@@ -243,14 +236,11 @@ public class PostDetailActivity extends AppCompatActivity {
 //                            if((currentPosition + duration) / 2 == duration){
 //                                play_btn.setVisibility(View.VISIBLE);
 //                            }
-
                         }
                     });
 
                 }
             });
-
-
         }else{
             vidPost.setVisibility(View.INVISIBLE);
             play_btn.setVisibility(View.INVISIBLE);
@@ -343,9 +333,7 @@ public class PostDetailActivity extends AppCompatActivity {
     }
 
     private void initRVComment() {
-
         rvComment.setLayoutManager(new LinearLayoutManager(this));
-
         DatabaseReference commentRef = firebaseDatabase.getReference("Comments").child(postKey);
         commentRef.addValueEventListener(new ValueEventListener() {
             @Override
@@ -358,10 +346,8 @@ public class PostDetailActivity extends AppCompatActivity {
                 commentAdapter = new CommentAdapter(getApplicationContext(),listComment);
                 rvComment.setAdapter(commentAdapter);
             }
-
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-
             }
         });
     }
@@ -372,11 +358,9 @@ public class PostDetailActivity extends AppCompatActivity {
 
 
     private void click_edit_btn(final String title, final String desc, final String postKey, final String pict, final String time, final String uid, final String userPhoto, final String uname){
-
         edit_post_btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
                 BottomSheet bottomSheet = new BottomSheet();
                 Bundle bundle = new Bundle();
 //                bundle.putString(title, "key");
@@ -388,7 +372,6 @@ public class PostDetailActivity extends AppCompatActivity {
                 bundle.putString("uid", uid);
                 bundle.putString("userPhoto", userPhoto);
                 bundle.putString("uname", uname);
-
                 bottomSheet.setArguments(bundle);
                 bottomSheet.show(getSupportFragmentManager(),"TAG");
             }
@@ -399,7 +382,6 @@ public class PostDetailActivity extends AppCompatActivity {
 
 
     private void backToHome() {
-
         findViewById(R.id.back_to_home).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -408,27 +390,24 @@ public class PostDetailActivity extends AppCompatActivity {
                 finish();
             }
         });
-
-
     }
 
     public void addComment(CommentPost commentPost){
         DatabaseReference commentReference = firebaseDatabase.getReference("Comments").child(postKey).push();
-
         String key = commentReference.getKey();
         commentPost.setCommentKey(key);
-
+        final String isiComment = commentPost.getIsiComment();
         commentReference.setValue(commentPost).addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
             public void onSuccess(Void aVoid) {
-                showMessage("Comment successfully added");
+                notifComment("Yay comment anda berhasil! 😀👌", "Berikut isi Comment anda: "+ isiComment);
                 editTextComment.setText("");
                 btnAddComment.setVisibility(View.VISIBLE);
             }
         }).addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
-                showMessage("Comment failed"+e.getMessage());
+                notifComment("Yah comment anda gagal masuk ☹", e.getMessage());
             }
         });
     }
@@ -441,8 +420,6 @@ public class PostDetailActivity extends AppCompatActivity {
         builder.setTitle("Want to delete it?");
         builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int which) {
-
-
 //                StorageReference desertRef = storageRef.child("gambarCerpen/"+postImg);
 //
 //                desertRef.delete().addOnSuccessListener(new OnSuccessListener<Void>() {
@@ -460,39 +437,26 @@ public class PostDetailActivity extends AppCompatActivity {
 //                nstd_view.setBackgroundColor(getColor(R.color.colorPrimary));
                 final LoadDialog dial = new LoadDialog(PostDetailActivity.this);
                 dial.startLoadingDialog();
-
-
                 DatabaseReference ref = FirebaseDatabase.getInstance().getReference().child("postinganCerpen").child(post.getPostKey());
                 ref.removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
-
                         deleteAllCommentByIdPost(post);
-
-//
-//
                         FirebaseStorage storage = FirebaseStorage.getInstance();
                         StorageReference photoRef = storage.getReferenceFromUrl(post.getPicture());
-
-
-
                         photoRef.delete().addOnSuccessListener(new OnSuccessListener<Void>() {
                             @Override
 
 
                             public void onSuccess(Void aVoid) {
                                 // File deleted successfully
-
                                 Handler handler = new Handler();
                                 handler.postDelayed(new Runnable() {
                                     @Override
                                     public void run() {
-
                                         dial.dismissDialog();
-
                                     }
                                 },5000);
-
                                 Toast.makeText(PostDetailActivity.this, "Delete Success",Toast.LENGTH_SHORT).show();
                                 Intent i = new Intent(getApplicationContext(), Home.class);
                                 startActivity(i);
@@ -515,17 +479,34 @@ public class PostDetailActivity extends AppCompatActivity {
     }
 
     private void deleteAllCommentByIdPost(Post post){
-
         DatabaseReference ref = FirebaseDatabase.getInstance().getReference().child("Comments").child(post.getPostKey());
-
         ref.removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
             public void onSuccess(Void aVoid) {
 
             }
         });
-
     }
 
+    private void notifComment(String action, String message) {
+        int NOTIFICATION_ID = 234;
+        String CHANNEL_ID = "my_channel_01";
+        Intent intent = new Intent(this, Home.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, 0);
+
+
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(this, CHANNEL_ID);
+        builder.setSmallIcon(R.drawable.aalogo);
+        builder.setContentTitle(action);
+        builder.setContentText(message);
+        builder.setPriority(NotificationCompat.PRIORITY_DEFAULT);
+        builder.setContentIntent(pendingIntent);
+
+        NotificationManagerCompat notificationManager = NotificationManagerCompat.from(this);
+
+        // notificationId is a unique int for each notification that you must define
+        notificationManager.notify(NOTIFICATION_ID, builder.build());
+    }
 
 }

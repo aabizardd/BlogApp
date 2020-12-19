@@ -75,11 +75,10 @@ public class Home extends AppCompatActivity {
     FirebaseAuth mAuth;
     FirebaseUser currentUser;
     Dialog popAddPost;
-    ImageView popupUserImage,popupPostImage,popupAddBtn;
+    ImageView popupUserImage, popupPostImage, popupAddBtn;
     EditText popupTitle, popupDescription;
     ProgressBar popupClickProgress;
     ImageButton camera_open;
-
 
     private AppBarConfiguration mAppBarConfiguration;
     private Uri pickedImgUri = null;
@@ -127,39 +126,27 @@ public class Home extends AppCompatActivity {
         NavigationUI.setupWithNavController(navigationView, navController);
 
         updateNavHeader();
-
 //        getSupportFragmentManager().beginTransaction().replace(R.id.nav_host_fragment_container, new HomeFragment()).commit();
-
     }
 
 
-
     private void checkAndRequestPermission() {
-
-        if(ContextCompat.checkSelfPermission(Home.this, Manifest.permission.READ_EXTERNAL_STORAGE)!= PackageManager.PERMISSION_GRANTED) {
+        if (ContextCompat.checkSelfPermission(Home.this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
             if (ActivityCompat.shouldShowRequestPermissionRationale(Home.this, Manifest.permission.READ_EXTERNAL_STORAGE)) {
-
                 Toast.makeText(Home.this, "Please accept for require permission", Toast.LENGTH_SHORT).show();
             } else {
-
                 ActivityCompat.requestPermissions(Home.this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, PReqCode);
-
             }
-        }
-        else
+        } else
             openGallery();
-
     }
 
     private void openGallery() {
         //TODO: open gallery intent and wait for user to pick an image !
-
         Intent galleryIntent = new Intent(Intent.ACTION_GET_CONTENT);
         galleryIntent.setType("*/*");
-        galleryIntent.putExtra(Intent.EXTRA_MIME_TYPES, new String[] {"image/*", "video/*"});
+        galleryIntent.putExtra(Intent.EXTRA_MIME_TYPES, new String[]{"image/*", "video/*"});
         startActivityForResult(galleryIntent, REQUESTCODE);
-
-
     }
 
     @Override
@@ -168,13 +155,12 @@ public class Home extends AppCompatActivity {
 
         if (resultCode == RESULT_OK && data != null) {
 
-            if(requestCode == REQUESTCODE) {
-
+            if (requestCode == REQUESTCODE) {
                 // the user has successfully picked an image
                 // we need to save its references to Uri variable
                 pickedImgUri = data.getData();
                 popupPostImage.setImageURI(pickedImgUri);
-            }else{
+            } else {
                 Bitmap bitmap = (Bitmap) data.getExtras().get("data");
                 ByteArrayOutputStream bytes = new ByteArrayOutputStream();
 //                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, bytes);
@@ -184,24 +170,18 @@ public class Home extends AppCompatActivity {
                 pickedImgUri = uri;
                 popupPostImage.setImageURI(pickedImgUri);
             }
-
-
         }
-
-
     }
 
     public Uri getImageUri(Bitmap src) {
         ByteArrayOutputStream os = new ByteArrayOutputStream();
 //        src.compress(format, quality, os);
-
         String path = MediaStore.Images.Media.insertImage(getContentResolver(), src, "title", null);
         return Uri.parse(path);
     }
 
 
     private void iniPopup() {
-
         popAddPost = new Dialog(this);
         popAddPost.setContentView(R.layout.popup_add_post);
         popAddPost.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
@@ -224,24 +204,23 @@ public class Home extends AppCompatActivity {
         popupAddBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
-                if (popupTitle.getText().toString().isEmpty() && popupDescription.getText().toString().isEmpty() && pickedImgUri == null){
+                if (popupTitle.getText().toString().isEmpty() && popupDescription.getText().toString().isEmpty() && pickedImgUri == null) {
                     showMessage("Please verify all input fields and choose Post image");
                     popupAddBtn.setVisibility(View.VISIBLE);
                     popupClickProgress.setVisibility(View.INVISIBLE);
-                }else if (popupDescription.getText().toString().isEmpty()){
+                } else if (popupDescription.getText().toString().isEmpty()) {
                     showMessage("Please input your stories field");
                     popupAddBtn.setVisibility(View.VISIBLE);
                     popupClickProgress.setVisibility(View.INVISIBLE);
-                }else if (popupTitle.getText().toString().isEmpty()){
+                } else if (popupTitle.getText().toString().isEmpty()) {
                     showMessage("Please input title field");
                     popupAddBtn.setVisibility(View.VISIBLE);
                     popupClickProgress.setVisibility(View.INVISIBLE);
-                }else if (pickedImgUri == null){
+                } else if (pickedImgUri == null) {
                     showMessage("Please choose Post image");
                     popupAddBtn.setVisibility(View.VISIBLE);
                     popupClickProgress.setVisibility(View.INVISIBLE);
-                }else{
+                } else {
                     popupAddBtn.setVisibility(View.INVISIBLE);
                     popupClickProgress.setVisibility(View.VISIBLE);
 
@@ -269,7 +248,6 @@ public class Home extends AppCompatActivity {
                                     addPost(post);
 
 
-
                                 }
                             }).addOnFailureListener(new OnFailureListener() {
                                 @Override
@@ -281,15 +259,12 @@ public class Home extends AppCompatActivity {
                             });
                         }
                     });
-
-
                 }
-
             }
         });
 
-        if(ContextCompat.checkSelfPermission(Home.this,
-                Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED){
+        if (ContextCompat.checkSelfPermission(Home.this,
+                Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(Home.this,
                     new String[]{
                             Manifest.permission.CAMERA
@@ -299,10 +274,8 @@ public class Home extends AppCompatActivity {
         camera_open.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
                 Intent i = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
                 startActivityForResult(i, 100);
-
             }
         });
 
@@ -312,13 +285,9 @@ public class Home extends AppCompatActivity {
                 openGallery();
             }
         });
-
-
-
     }
 
     private void addPost(final Post post) {
-
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         DatabaseReference myRef = database.getReference("postinganCerpen").push();
 
@@ -331,7 +300,7 @@ public class Home extends AppCompatActivity {
             @Override
             public void onSuccess(Void aVoid) {
 
-                notif("Success Add Post",post.getTitle());
+                notif("Success Add Post", post.getTitle());
                 showMessage("Post Added Successfully");
 
                 popupTitle.setText("");
@@ -345,24 +314,12 @@ public class Home extends AppCompatActivity {
         });
     }
 
-    private void notif(String action, String message){
-
+    private void notif(String action, String message) {
         int NOTIFICATION_ID = 234;
-        String CHANNEL_ID   = "my_channel_01";
-        Intent intent       = new Intent(this, Home.class);
+        String CHANNEL_ID = "my_channel_01";
+        Intent intent = new Intent(this, Home.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, 0);
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            CharSequence name           = CHANNEL_ID;
-            String description          = CHANNEL_ID;
-            int importance              = NotificationManager.IMPORTANCE_DEFAULT;
-
-            NotificationChannel channel = new NotificationChannel(CHANNEL_ID, name, importance);
-            channel.setDescription(description);
-            NotificationManager notificationManager = getSystemService(NotificationManager.class);
-            notificationManager.createNotificationChannel(channel);
-        }
 
         Bitmap bitmap = null;
         try {
@@ -371,12 +328,10 @@ public class Home extends AppCompatActivity {
             e.printStackTrace();
         }
 
-
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this, CHANNEL_ID);
-        builder.setSmallIcon(R.drawable.ic_baseline_exit_to_app_24);//nannti ganti jadi image app nya
+        builder.setSmallIcon(R.drawable.aalogo);
         builder.setContentTitle(action);
         builder.setContentText(message);
-        builder.setLargeIcon(bitmap);
         builder.setStyle(new NotificationCompat.BigPictureStyle()
                 .bigPicture(bitmap));
         builder.setPriority(NotificationCompat.PRIORITY_DEFAULT);
@@ -384,14 +339,12 @@ public class Home extends AppCompatActivity {
 
         NotificationManagerCompat notificationManager = NotificationManagerCompat.from(this);
 
-        // notificationId is a unique int for each notification that you must define
         notificationManager.notify(NOTIFICATION_ID, builder.build());
     }
 
 
     private void showMessage(String message) {
-
-        Toast.makeText(Home.this, message,Toast.LENGTH_LONG).show();
+        Toast.makeText(Home.this, message, Toast.LENGTH_LONG).show();
     }
 
     @Override
@@ -402,13 +355,11 @@ public class Home extends AppCompatActivity {
     }
 
 
-
-    private void logout(){
+    private void logout() {
         FirebaseAuth.getInstance().signOut();
         Intent logout = new Intent(getApplicationContext(), LogoutActivity.class);
         startActivity(logout);
         finish();
-
     }
 
     @Override
@@ -418,14 +369,14 @@ public class Home extends AppCompatActivity {
                 || super.onSupportNavigateUp();
     }
 
-    public void updateNavHeader(){
+    public void updateNavHeader() {
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         View headerView = navigationView.getHeaderView(0);
         TextView navUsername = headerView.findViewById(R.id.nav_username);
         TextView navUserMail = headerView.findViewById(R.id.nav_user_mail);
         ImageView navUserPhoto = headerView.findViewById(R.id.nav_user_photo);
 
-        if(currentUser.getDisplayName()==null && currentUser.getEmail()==null && currentUser.getPhotoUrl()==null){
+        if (currentUser.getDisplayName() == null && currentUser.getEmail() == null && currentUser.getPhotoUrl() == null) {
 
             navUsername.setText("Anon");
             navUserMail.setText("pleaseinsert@youremail.com");
@@ -433,7 +384,7 @@ public class Home extends AppCompatActivity {
             //load image with glide
             Glide.with(this).load(R.drawable.ic_baseline_person_24_blue).into(navUserPhoto);
 
-        }else {
+        } else {
 
             navUsername.setText(currentUser.getDisplayName());
             navUserMail.setText(currentUser.getEmail());
@@ -441,7 +392,6 @@ public class Home extends AppCompatActivity {
             //load image with glide
             Glide.with(this).load(currentUser.getPhotoUrl()).into(navUserPhoto);
         }
-
     }
 
 

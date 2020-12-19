@@ -1,5 +1,6 @@
 package id.ac.id.telkomuniversity.tass.blogapp.Adapters;
 
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
@@ -13,6 +14,8 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.core.app.NotificationCompat;
+import androidx.core.app.NotificationManagerCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentActivity;
 import androidx.recyclerview.widget.RecyclerView;
@@ -30,6 +33,7 @@ import java.util.Locale;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 import id.ac.id.telkomuniversity.tass.blogapp.Activities.BottomSheet;
+import id.ac.id.telkomuniversity.tass.blogapp.Activities.Home;
 import id.ac.id.telkomuniversity.tass.blogapp.Activities.PostDetailActivity;
 import id.ac.id.telkomuniversity.tass.blogapp.Models.CommentPost;
 import id.ac.id.telkomuniversity.tass.blogapp.R;
@@ -105,7 +109,7 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.CommentV
                             commentPost.setPostKey(postKey);
                             commentPost.setCommentKey(commentKey);
 
-                            deleteCmnt(commentPost);
+                            deleteComment(commentPost);
 
                         }
                     });
@@ -131,13 +135,33 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.CommentV
         return date;
     }
 
-    private void deleteCmnt(CommentPost commentPost){
+    private void deleteComment(final CommentPost commentPost){
         DatabaseReference ref = FirebaseDatabase.getInstance().getReference("Comments").child(commentPost.getPostKey()).child(commentPost.getCommentKey());
+
         ref.removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
             public void onSuccess(Void aVoid) {
-                Toast.makeText(mContext, "maskdmaskmda", Toast.LENGTH_SHORT).show();
+                notifComment("Yay comment anda berhasil dihapus! 😀👌");
             }
         });
+    }
+
+    private void notifComment(String action) {
+        int NOTIFICATION_ID = 234;
+        String CHANNEL_ID = "my_channel_01";
+        Intent intent = new Intent(mContext, Home.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        PendingIntent pendingIntent = PendingIntent.getActivity(mContext, 0, intent, 0);
+
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(mContext, CHANNEL_ID);
+        builder.setSmallIcon(R.drawable.aalogo);
+        builder.setContentTitle(action);
+        builder.setPriority(NotificationCompat.PRIORITY_DEFAULT);
+        builder.setContentIntent(pendingIntent);
+
+        NotificationManagerCompat notificationManager = NotificationManagerCompat.from(mContext);
+
+        // notificationId is a unique int for each notification that you must define
+        notificationManager.notify(NOTIFICATION_ID, builder.build());
     }
 }
