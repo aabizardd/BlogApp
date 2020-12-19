@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "925950347483",
+    "project_id": "blogapp-fb34e",
+    "storage_bucket": "blogapp-fb34e.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:925950347483:android:7f83c77639ceacf70a24fe",
+        "android_client_info": {
+          "package_name": "id.ac.id.telkomuniversity.tass.blogapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "925950347483-ku9kbajll0998ssu834juat75t53benl.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAzpy8nNkZUPaduzOCFGwZAiMWUJcog-uQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "925950347483-ku9kbajll0998ssu834juat75t53benl.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
