@@ -377,18 +377,14 @@ public class Home extends AppCompatActivity {
         ImageView navUserPhoto = headerView.findViewById(R.id.nav_user_photo);
 
         if (currentUser.getDisplayName() == null && currentUser.getEmail() == null && currentUser.getPhotoUrl() == null) {
-
             navUsername.setText("Anon");
             navUserMail.setText("pleaseinsert@youremail.com");
-
             //load image with glide
             Glide.with(this).load(R.drawable.ic_baseline_person_24_blue).into(navUserPhoto);
 
         } else {
-
             navUsername.setText(currentUser.getDisplayName());
             navUserMail.setText(currentUser.getEmail());
-
             //load image with glide
             Glide.with(this).load(currentUser.getPhotoUrl()).into(navUserPhoto);
         }
