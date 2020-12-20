@@ -4,28 +4,38 @@ import com.google.firebase.database.ServerValue;
 
 public class CommentPost {
 
-    String postKey, CommentKey;
+    String postKey, CommentKey, userYangPunyaPostingan;
     String isiComment, idUser, imageUser, userName;
     Object timestamp;
 
     public CommentPost() {
     }
 
-    public CommentPost(String postKey, String isiComment, String idUser, String imageUser, String userName) {
+    public CommentPost(String postKey, String isiComment, String idUser, String imageUser, String userName, String userYangPunyaPostingan) {
         this.postKey = postKey;
         this.isiComment = isiComment;
         this.idUser = idUser;
         this.imageUser = imageUser;
         this.userName = userName;
+        this.userYangPunyaPostingan = userYangPunyaPostingan;
         this.timestamp = ServerValue.TIMESTAMP;
     }
 
-    public CommentPost(String isiComment, String idUser, String imageUser, String userName, Object timestamp) {
+    public CommentPost(String isiComment, String idUser, String imageUser, String userName, String userYangPunyaPostingan, Object timestamp) {
         this.isiComment = isiComment;
         this.idUser = idUser;
         this.imageUser = imageUser;
         this.userName = userName;
+        this.userYangPunyaPostingan = userYangPunyaPostingan;
         this.timestamp = timestamp;
+    }
+
+    public String getUserYangPunyaPostingan() {
+        return userYangPunyaPostingan;
+    }
+
+    public void setUserYangPunyaPostingan(String userYangPunyaPostingan) {
+        this.userYangPunyaPostingan = userYangPunyaPostingan;
     }
 
     public String getPostKey() {

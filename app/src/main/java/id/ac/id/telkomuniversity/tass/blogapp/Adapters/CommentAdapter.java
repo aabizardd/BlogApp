@@ -22,6 +22,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
@@ -64,6 +65,11 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.CommentV
 
         holder.delete_btn.setImageDrawable(mContext.getDrawable(R.drawable.ic_baseline_delete_24));
 
+        holder.userYangPunyaPost =   holder.userYangPunyaPost.concat(mData.get(position).getUserYangPunyaPostingan());
+        holder.idUserCmnt = holder.idUserCmnt.concat(mData.get(position).getIdUser());
+
+        holder.currentUid = holder.currentUid.concat(FirebaseAuth.getInstance().getCurrentUser().getUid());
+
     }
 
     @Override
@@ -72,11 +78,16 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.CommentV
     }
 
     public class CommentViewHolder extends RecyclerView.ViewHolder{
-
         CircleImageView civFotoKomen;
         TextView tvNama,tvIsi,tvTanggal;
 
         ImageButton delete_btn;
+
+        String userYangPunyaPost="";
+        String idUserCmnt="";
+        String currentUid="";
+
+
 
         public CommentViewHolder(@NonNull final View itemView) {
             super(itemView);
@@ -87,16 +98,18 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.CommentV
 
             delete_btn = itemView.findViewById(R.id.delete_btn_comment);
 
-            delete_btn.setVisibility(View.INVISIBLE);
-
             itemView.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View v) {
+                    if(!userYangPunyaPost.equals(currentUid) && !idUserCmnt.equals(currentUid)){
 
+                        delete_btn.setVisibility(View.INVISIBLE);
+
+                    }else
+                        delete_btn.setVisibility(View.VISIBLE);
 
                     itemView.setBackgroundColor(ContextCompat.getColor(mContext, R.color.blueOnLong));
 //                    civFotoKomen.setVisibility(View.INVISIBLE);
-                    delete_btn.setVisibility(View.VISIBLE);
 
                     delete_btn.setOnClickListener(new View.OnClickListener() {
                         @Override

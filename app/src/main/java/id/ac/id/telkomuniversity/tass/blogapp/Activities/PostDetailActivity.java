@@ -173,8 +173,9 @@ public class PostDetailActivity extends AppCompatActivity {
                 String namaUser = currentUser.getDisplayName();
                 String fotoUser = currentUser.getPhotoUrl().toString();
                 String postKey = getIntent().getExtras().getString("postKey");
+                String userIdHasPost = getIntent().getExtras().getString("userId");
 
-                CommentPost commentPost = new CommentPost(postKey, isiComment,idUser,fotoUser,namaUser);
+                CommentPost commentPost = new CommentPost(postKey, isiComment,idUser,fotoUser,namaUser, userIdHasPost);
 
                 addComment(commentPost);
             }

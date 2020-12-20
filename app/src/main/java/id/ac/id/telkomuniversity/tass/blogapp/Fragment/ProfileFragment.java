@@ -1,6 +1,8 @@
 package id.ac.id.telkomuniversity.tass.blogapp.Fragment;
 
 import android.Manifest;
+import android.app.Activity;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -12,6 +14,8 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
+import androidx.core.app.NotificationCompat;
+import androidx.core.app.NotificationManagerCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -47,6 +51,8 @@ import java.io.ByteArrayOutputStream;
 import java.net.URI;
 
 import de.hdodenhof.circleimageview.CircleImageView;
+import id.ac.id.telkomuniversity.tass.blogapp.Activities.Home;
+import id.ac.id.telkomuniversity.tass.blogapp.Activities.LoginActivity;
 import id.ac.id.telkomuniversity.tass.blogapp.Activities.RegisterActivity;
 import id.ac.id.telkomuniversity.tass.blogapp.R;
 
@@ -67,11 +73,12 @@ public class ProfileFragment extends Fragment {
     ProgressBar progressBar;
 
     static int PReqCode = 509;
-    static int REQUESTCODE = 1;
+    private static int REQUESTCODE = 509;
     private Uri pickedImgUri = null;
 
     String nama, email, password = null;
 
+    private Context mContext = null;
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -142,7 +149,7 @@ public class ProfileFragment extends Fragment {
         editFoto.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                handleImageClick(fragmentView);
+                handleImageClick();
             }
         });
 
@@ -176,7 +183,7 @@ public class ProfileFragment extends Fragment {
                     public void onSuccess(Void aVoid) {
                         progressBar.setVisibility(View.INVISIBLE);
                         btnSubmit.setVisibility(View.VISIBLE);
-                        Toast.makeText(getActivity(),"hore nama",Toast.LENGTH_SHORT).show();
+//                        Toast.makeText(getActivity(),"hore nama",Toast.LENGTH_SHORT).show();
                     }
                 }).addOnFailureListener(new OnFailureListener() {
                     @Override
@@ -190,7 +197,7 @@ public class ProfileFragment extends Fragment {
                     public void onComplete(@NonNull Task<Void> task) {
                         progressBar.setVisibility(View.INVISIBLE);
                         btnSubmit.setVisibility(View.VISIBLE);
-                        Toast.makeText(getActivity(),"hore em",Toast.LENGTH_SHORT).show();
+//                        Toast.makeText(getActivity(),"hore em",Toast.LENGTH_SHORT).show();
                     }
                 }).addOnFailureListener(new OnFailureListener() {
                     @Override
@@ -204,7 +211,7 @@ public class ProfileFragment extends Fragment {
                     public void onComplete(@NonNull Task<Void> task) {
                         progressBar.setVisibility(View.INVISIBLE);
                         btnSubmit.setVisibility(View.VISIBLE);
-                        Toast.makeText(getActivity(),"hore pw",Toast.LENGTH_SHORT).show();
+//                        Toast.makeText(getActivity(),"hore pw",Toast.LENGTH_SHORT).show();
                     }
                 }).addOnFailureListener(new OnFailureListener() {
                     @Override
@@ -213,100 +220,98 @@ public class ProfileFragment extends Fragment {
                     }
                 });
 
-                AuthCredential credential = EmailAuthProvider.getCredential(email,password);
-                currentUser.reauthenticate(credential).addOnCompleteListener(new OnCompleteListener<Void>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Void> task) {
-                        Toast.makeText(getActivity(),"reauth",Toast.LENGTH_SHORT).show();
-                    }
-                }).addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Toast.makeText(getActivity(),e.getMessage(),Toast.LENGTH_SHORT).show();
-                    }
-                });
+                notif("Yay profile anda berhasil di update! 😀👌");
 
+//                AuthCredential credential = EmailAuthProvider.getCredential(email,password);
+//                currentUser.reauthenticate(credential).addOnCompleteListener(new OnCompleteListener<Void>() {
+//                    @Override
+//                    public void onComplete(@NonNull Task<Void> task) {
+//                        Toast.makeText(getActivity(),"reauth",Toast.LENGTH_SHORT).show();
+//                    }
+//                }).addOnFailureListener(new OnFailureListener() {
+//                    @Override
+//                    public void onFailure(@NonNull Exception e) {
+//                        Toast.makeText(getActivity(),e.getMessage(),Toast.LENGTH_SHORT).show();
+//                    }
+//                });
             }
         });
         return fragmentView;
-    }
-    
-    public void handleImageClick(View view){
-        Intent i = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        startActivityForResult(i,REQUESTCODE);
-//        Intent galleryIntent = new Intent(Intent.ACTION_GET_CONTENT);
-//        galleryIntent.setType("image/*");
-//        startActivityForResult(galleryIntent, REQUESTCODE);
     }
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-//        if(requestCode==REQUESTCODE){
-        if (requestCode == REQUESTCODE && data != null){
-            switch (resultCode){
-                case RESULT_OK:
-                    Bitmap bitmap = (Bitmap) data.getExtras().get("data");
-                    editFoto.setImageBitmap(bitmap);
-                    handleUpload(bitmap);
-//                    pickedImgUri = data.getData();
-//                    setProfileURI(pickedImgUri, editFoto);
-            }
+
+        if (requestCode == REQUESTCODE && resultCode == Activity.RESULT_OK && data != null) {
+
+            pickedImgUri = data.getData();
+//            imgClick.setImageURI(pickedImgUri);
+
+            handleUpload(pickedImgUri);
         }
+//        Uri returnUri;
     }
 
-    private void handleUpload(Bitmap bitmap){
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+    public void handleImageClick(){
+//        Intent i = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+//        startActivityForResult(i,REQUESTCODE);
+        Intent galleryIntent = new Intent(Intent.ACTION_GET_CONTENT);
+        galleryIntent.setType("image/*");
+        startActivityForResult(galleryIntent, REQUESTCODE);
+    }
 
+    private void handleUpload(Uri uri){
         String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        final FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
 
         final StorageReference mStorage = FirebaseStorage.getInstance().getReference().child("users_photos").child(uid+".jpeg");
+        final StorageReference imageFilePath = mStorage.child(pickedImgUri.getLastPathSegment());
 
-        mStorage.putBytes(baos.toByteArray()).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+        imageFilePath.putFile(pickedImgUri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
             @Override
             public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                getDownloadURL(mStorage);
-            }
-        }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                Toast.makeText(getActivity(),e.getMessage(),Toast.LENGTH_SHORT).show();
+                //image upload successfully
+                imageFilePath.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                    @Override
+                    public void onSuccess(Uri uri) {
+                        UserProfileChangeRequest request = new UserProfileChangeRequest.Builder().setPhotoUri(uri).build();
+                    currentUser.updateProfile(request).addOnSuccessListener(new OnSuccessListener<Void>() {
+                        @Override
+                        public void onSuccess(Void aVoid) {
+                            Toast.makeText(getActivity(), "Update Foto Success", Toast.LENGTH_SHORT).show();
+                            Intent i = new Intent(getActivity().getApplication(), LoginActivity.class);
+                            startActivity(i);
+                        }
+                    }).addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Toast.makeText(getActivity(), e.getMessage(), Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                    }
+                });
             }
         });
     }
 
-    private void getDownloadURL(StorageReference reference){
-        reference.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-            @Override
-            public void onSuccess(Uri uri) {
-                Log.d(TAG, "onSuccess: "+uri);
-                setProfileURI(uri);
-            }
-        }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                Toast.makeText(getActivity(),e.getMessage(),Toast.LENGTH_SHORT).show();
-            }
-        });
-    }
+    private void notif(String action) {
+        int NOTIFICATION_ID = 234;
+        String CHANNEL_ID = "my_channel_01";
+//        Intent intent = new Intent(this, ProfileFragment.class);
+//        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+//        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, 0);
 
-    private void setProfileURI(Uri uri){
-        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(getActivity(), CHANNEL_ID);
+        builder.setSmallIcon(R.drawable.aalogo);
+        builder.setContentTitle(action);
+        builder.setPriority(NotificationCompat.PRIORITY_DEFAULT);
+//        builder.setContentIntent(pendingIntent);
 
-        UserProfileChangeRequest request = new UserProfileChangeRequest.Builder().setPhotoUri(uri).build();
+        NotificationManagerCompat notificationManager = NotificationManagerCompat.from(getActivity());
 
-        currentUser.updateProfile(request).addOnSuccessListener(new OnSuccessListener<Void>() {
-            @Override
-            public void onSuccess(Void aVoid) {
-                Toast.makeText(getActivity(),"Update Foto Success",Toast.LENGTH_SHORT).show();
-            }
-        }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                Toast.makeText(getActivity(),e.getMessage(),Toast.LENGTH_SHORT).show();
-            }
-        });
+        // notificationId is a unique int for each notification that you must define
+        notificationManager.notify(NOTIFICATION_ID, builder.build());
     }
 
 }

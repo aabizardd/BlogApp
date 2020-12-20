@@ -72,6 +72,7 @@ public class Home extends AppCompatActivity {
 
     private static final int PReqCode = 2;
     private static final int REQUESTCODE = 2;
+    private static final int REQUEST_IMAGE_CAPTURE = 1;
     FirebaseAuth mAuth;
     FirebaseUser currentUser;
     Dialog popAddPost;
@@ -160,11 +161,11 @@ public class Home extends AppCompatActivity {
                 // we need to save its references to Uri variable
                 pickedImgUri = data.getData();
                 popupPostImage.setImageURI(pickedImgUri);
-            } else {
-                Bitmap bitmap = (Bitmap) data.getExtras().get("data");
-                ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-//                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, bytes);
-                String path = MediaStore.Images.Media.insertImage(getApplication().getContentResolver(), bitmap, "val", null);
+            } else if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
+                Bundle extras = data.getExtras();
+                Bitmap imageBitmap = (Bitmap) extras.get("data");
+
+                String path = MediaStore.Images.Media.insertImage(getApplication().getContentResolver(), imageBitmap, "val", null);
 
                 Uri uri = Uri.parse(path);
                 pickedImgUri = uri;
