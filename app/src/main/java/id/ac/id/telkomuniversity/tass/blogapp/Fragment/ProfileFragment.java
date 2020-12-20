@@ -4,6 +4,7 @@ import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -15,6 +16,7 @@ import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
+import android.provider.MediaStore;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -41,6 +43,9 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
+import java.io.ByteArrayOutputStream;
+import java.net.URI;
+
 import de.hdodenhof.circleimageview.CircleImageView;
 import id.ac.id.telkomuniversity.tass.blogapp.Activities.RegisterActivity;
 import id.ac.id.telkomuniversity.tass.blogapp.R;
@@ -62,7 +67,7 @@ public class ProfileFragment extends Fragment {
     ProgressBar progressBar;
 
     static int PReqCode = 509;
-    static int REQUESTCODE = 509;
+    static int REQUESTCODE = 1;
     private Uri pickedImgUri = null;
 
     String nama, email, password = null;
@@ -134,12 +139,12 @@ public class ProfileFragment extends Fragment {
 
         progressBar.setVisibility(View.INVISIBLE);
 
-//        editFoto.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                openGallery();
-//            }
-//        });
+        editFoto.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                handleImageClick(fragmentView);
+            }
+        });
 
         btnSubmit.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -161,7 +166,7 @@ public class ProfileFragment extends Fragment {
                 }
 
                 FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
-
+                
                 UserProfileChangeRequest request = new UserProfileChangeRequest.Builder()
                         .setDisplayName(nama)
                         .build();
@@ -225,11 +230,83 @@ public class ProfileFragment extends Fragment {
         });
         return fragmentView;
     }
+    
+    public void handleImageClick(View view){
+        Intent i = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        startActivityForResult(i,REQUESTCODE);
+//        Intent galleryIntent = new Intent(Intent.ACTION_GET_CONTENT);
+//        galleryIntent.setType("image/*");
+//        startActivityForResult(galleryIntent, REQUESTCODE);
+    }
 
-//    public void storageDemo(View view){
-//        StorageReference mStorage = FirebaseStorage.getInstance().getReference().child("users_photos");
-//        StorageReference imageFilePath = mStorage.child(pickedImgUri.getLastPathSegment());
-//
-//
-//    }
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+//        if(requestCode==REQUESTCODE){
+        if (requestCode == REQUESTCODE && data != null){
+            switch (resultCode){
+                case RESULT_OK:
+                    Bitmap bitmap = (Bitmap) data.getExtras().get("data");
+                    editFoto.setImageBitmap(bitmap);
+                    handleUpload(bitmap);
+//                    pickedImgUri = data.getData();
+//                    setProfileURI(pickedImgUri, editFoto);
+            }
+        }
+    }
+
+    private void handleUpload(Bitmap bitmap){
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+
+        String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+
+        final StorageReference mStorage = FirebaseStorage.getInstance().getReference().child("users_photos").child(uid+".jpeg");
+
+        mStorage.putBytes(baos.toByteArray()).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+            @Override
+            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                getDownloadURL(mStorage);
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Toast.makeText(getActivity(),e.getMessage(),Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void getDownloadURL(StorageReference reference){
+        reference.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+            @Override
+            public void onSuccess(Uri uri) {
+                Log.d(TAG, "onSuccess: "+uri);
+                setProfileURI(uri);
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Toast.makeText(getActivity(),e.getMessage(),Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void setProfileURI(Uri uri){
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+
+        UserProfileChangeRequest request = new UserProfileChangeRequest.Builder().setPhotoUri(uri).build();
+
+        currentUser.updateProfile(request).addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+                Toast.makeText(getActivity(),"Update Foto Success",Toast.LENGTH_SHORT).show();
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Toast.makeText(getActivity(),e.getMessage(),Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
 }
