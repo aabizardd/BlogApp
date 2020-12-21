@@ -16,7 +16,7 @@ import org.w3c.dom.Text;
 
 import id.ac.id.telkomuniversity.tass.blogapp.R;
 
-public class Loading extends AppCompatActivity {
+public class    Loading extends AppCompatActivity {
 
     Animation topAnim, bottomAnim;
     ImageView imageView;
@@ -27,7 +27,7 @@ public class Loading extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS, WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
         setContentView(R.layout.activity_loading);
 
         topAnim = AnimationUtils.loadAnimation(this,R.anim.top_animation);

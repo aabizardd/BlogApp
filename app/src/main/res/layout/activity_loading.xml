@@ -5,28 +5,31 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".Activities.Loading"
-    android:background="@color/colorPrimary">
+    android:background="@color/white">
 
     <ImageView
         android:id="@+id/logoLoading"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="240dp"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/aalogo" />
+        app:srcCompat="@drawable/group_11" />
 
     <TextView
         android:id="@+id/titleLoading"
         android:layout_width="260dp"
         android:layout_height="103dp"
-        android:layout_marginTop="400dp"
         android:fontFamily="@font/poppins"
         android:text="CERPEN"
         android:textColor="#FFFFFF"
         android:textSize="70sp"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.497"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/logoLoading" />
+        app:layout_constraintTop_toBottomOf="@+id/logoLoading" />
 </androidx.constraintlayout.widget.ConstraintLayout>
