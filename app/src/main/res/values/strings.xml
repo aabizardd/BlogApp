@@ -23,6 +23,7 @@
 
     <string name="facebook_app_id">149023386645425</string>
     <string name="fb_login_protocol_scheme">fb149023386645425</string>
+<!--    <string name="default_web_client_id" translatable="false">123.apps.googleusercontent.com</string>-->
 
 
 </resources>

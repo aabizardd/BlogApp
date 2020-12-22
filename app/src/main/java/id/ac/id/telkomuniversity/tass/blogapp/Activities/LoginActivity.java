@@ -49,8 +49,7 @@ import com.facebook.appevents.AppEventsLogger;
 
 public class LoginActivity extends AppCompatActivity {
 
-
-    //ini baru lagi ya
+    //ini ya
 
     private CallbackManager mCallbackManager;
 
