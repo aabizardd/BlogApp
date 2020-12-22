@@ -194,23 +194,7 @@ public class LoginActivity extends AppCompatActivity {
 
 
         ImgUserPhoto = findViewById(R.id.regUserPhoto);
-
-        ImgUserPhoto.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                if (Build.VERSION.SDK_INT >=22){
-
-                    checkAndRequestPermission();
-
-                }
-                else{
-
-                    openGallery();
-                }
-
-            }
-        });
+        
 
     }
 
