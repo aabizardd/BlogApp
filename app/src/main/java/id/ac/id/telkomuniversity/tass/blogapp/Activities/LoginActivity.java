@@ -48,7 +48,9 @@ import com.facebook.appevents.AppEventsLogger;
 
 
 public class LoginActivity extends AppCompatActivity {
-    
+
+    //apasioh ahaa
+
     private CallbackManager mCallbackManager;
 
     private static final String TAG = "GoogleActivity";
