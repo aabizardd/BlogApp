@@ -50,7 +50,7 @@ import com.facebook.appevents.AppEventsLogger;
 public class LoginActivity extends AppCompatActivity {
 
 
-    //ini baru
+    //ini baru lagi
 
     private CallbackManager mCallbackManager;
 
