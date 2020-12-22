@@ -49,7 +49,7 @@ import com.facebook.appevents.AppEventsLogger;
 
 public class LoginActivity extends AppCompatActivity {
 
-    //ini ya baru banget
+    //ini ya baru banget ljhoooo
 
     private CallbackManager mCallbackManager;
 
