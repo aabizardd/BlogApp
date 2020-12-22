@@ -21,7 +21,7 @@ import id.ac.id.telkomuniversity.tass.blogapp.Activities.PostDetailActivity;
 import id.ac.id.telkomuniversity.tass.blogapp.Models.Post;
 import id.ac.id.telkomuniversity.tass.blogapp.R;
 
-public class    PostAdapter extends RecyclerView.Adapter<PostAdapter.MyViewHolder> {
+public class PostAdapter extends RecyclerView.Adapter<PostAdapter.MyViewHolder> {
 
 
     Context mContext;
