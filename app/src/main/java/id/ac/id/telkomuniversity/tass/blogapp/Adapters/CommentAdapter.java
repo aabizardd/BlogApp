@@ -80,12 +80,14 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.CommentV
     public class CommentViewHolder extends RecyclerView.ViewHolder{
         CircleImageView civFotoKomen;
         TextView tvNama,tvIsi,tvTanggal;
+        View garis;
 
         ImageButton delete_btn;
 
         String userYangPunyaPost="";
         String idUserCmnt="";
         String currentUid="";
+
 
 
 
@@ -97,6 +99,8 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.CommentV
             tvTanggal = itemView.findViewById(R.id.tanggal);
 
             delete_btn = itemView.findViewById(R.id.delete_btn_comment);
+
+            garis = itemView.findViewById(R.id.viewGaris);
 
             itemView.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
@@ -110,6 +114,10 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.CommentV
 
                     itemView.setBackgroundColor(ContextCompat.getColor(mContext, R.color.blueOnLong));
 //                    civFotoKomen.setVisibility(View.INVISIBLE);
+                    tvNama.setVisibility(View.INVISIBLE);
+                    tvIsi.setVisibility(View.INVISIBLE);
+                    garis.setVisibility(View.INVISIBLE);
+
 
                     delete_btn.setOnClickListener(new View.OnClickListener() {
                         @Override
@@ -132,6 +140,10 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.CommentV
                         public void onClick(View v) {
                             itemView.setBackgroundColor(ContextCompat.getColor(mContext, R.color.white));
                             delete_btn.setVisibility(View.INVISIBLE);
+
+                            tvNama.setVisibility(View.VISIBLE);
+                            tvIsi.setVisibility(View.VISIBLE);
+                            garis.setVisibility(View.VISIBLE);
 
                         }
                     });

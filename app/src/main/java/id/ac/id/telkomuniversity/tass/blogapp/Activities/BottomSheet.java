@@ -97,7 +97,7 @@ public class BottomSheet extends BottomSheetDialogFragment {
 
     }
 
-    private void updatePost(Post post){
+    private void updatePost(final Post post){
 
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         DatabaseReference myRef = database.getReference();
@@ -107,7 +107,22 @@ public class BottomSheet extends BottomSheetDialogFragment {
             public void onSuccess(Void aVoid) {
 
                 Toast.makeText(getContext(), "Data Updated",Toast.LENGTH_SHORT).show();
-                Intent i = new Intent(getContext(), Home.class);
+
+                Intent i = new Intent(getContext(), PostDetailActivity.class);
+
+
+                i.putExtra("userId", post.getUserId());
+
+                i.putExtra("postKey", post.getPostKey());
+
+                i.putExtra("title", post.getTitle());
+                i.putExtra("postImage", post.getPicture());
+                i.putExtra("description", post.getDescription());
+                i.putExtra("postKey", post.getPostKey());
+                i.putExtra("userPhoto", post.getUserPhoto());
+                i.putExtra("username", post.getUsername());
+
+                i.putExtra("postDate", post.getTimeStamp());
                 startActivity(i);
             }
         });
