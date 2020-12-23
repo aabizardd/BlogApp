@@ -168,16 +168,23 @@ public class PostDetailActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
 
-                String isiComment = editTextComment.getText().toString();
+                String isiComment = editTextComment.getText().toString().trim();
                 String idUser = currentUser.getUid();
                 String namaUser = currentUser.getDisplayName();
                 String fotoUser = currentUser.getPhotoUrl().toString();
                 String postKey = getIntent().getExtras().getString("postKey");
                 String userIdHasPost = getIntent().getExtras().getString("userId");
 
-                CommentPost commentPost = new CommentPost(postKey, isiComment,idUser,fotoUser,namaUser, userIdHasPost);
+                if (isiComment.equals("")) {
 
-                addComment(commentPost);
+                    showMessage("Please fill your comment first");
+
+                } else {
+
+                    CommentPost commentPost = new CommentPost(postKey, isiComment, idUser, fotoUser, namaUser, userIdHasPost);
+
+                    addComment(commentPost);
+                }
             }
         });
 
